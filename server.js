@@ -143,7 +143,33 @@ const addRole = async (req, res) => {
 };
 
 const updateEmployeeRole = async (req, res) => {
-  
+  const { employeeId, roleId } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'employeeId',
+      message: 'Enter the ID of the employee you want to update:',
+    },
+    {
+      type: 'input',
+      name: 'roleId',
+      message: 'Enter the new role ID for the employee:',
+    },
+  ]);
+
+  if (!employeeId || !roleId) {
+    return res.status(400).json({ error: 'Both employee ID and role ID are required.' });
+  }
+
+  const sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
+  db.query(sql, [roleId, employeeId], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: 'An error occurred while updating the employee role.' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Employee not found.' });
+    } else {
+      res.json({ message: 'Employee role updated successfully.' });
+    }
+  });
 };
 
 module.exports = {
