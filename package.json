@@ -1,18 +1,16 @@
 {
   "name": "main",
   "version": "1.0.0",
-  "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "cli-table3": "^0.6.3",
+    "dotenv": "^16.3.1",
     "express": "^4.17.1",
-    "jshint": "^2.12.0",
-    "mysql2": "^2.2.5"
+    "inquirer": "^9.2.10",
+    "mysql2": "^2.3.3"
   }
 }

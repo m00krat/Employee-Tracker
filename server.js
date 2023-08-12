@@ -1,7 +1,6 @@
 const inquirer = require('inquirer');
-const db = require('..');
-const Table = require('cli-table3');
-
+const db = require('./config/connection');
+import Table from 'cli-table3';
 
 const viewDepartments = (req, res) => {
   db.query('SELECT * FROM departments', (err, departments) => {
@@ -79,31 +78,30 @@ const addDepartment = async (req, res) => {
 };
 
 const addEmployee = async (req, res) => {
-  const { employeeId, roleId } = await inquirer.prompt([
+  const { firstName, lastName } = await inquirer.prompt([
     {
       type: 'input',
-      name: 'employeeId',
-      message: 'Enter the ID of the employee you want to update:',
+      name: 'firstName',
+      message: 'Enter the first name of the employee:',
     },
     {
       type: 'input',
-      name: 'roleId',
-      message: 'Enter the new role ID for the employee:',
+      name: 'lastName',
+      message: 'Enter the last name of the employee:',
     },
   ]);
 
-  if (!employeeId || !roleId) {
-    return res.status(400).json({ error: 'Both employee ID and role ID are required.' });
+  if (!firstName || !lastName) {
+    return res.status(400).json({ error: 'Both first name and last name are required.' });
   }
 
-  const sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
-  db.query(sql, [roleId, employeeId], (err, result) => {
+  const sql = 'INSERT INTO employees (first_name, last_name) VALUES (?, ?)';
+
+  db.query(sql, [firstName, lastName], (err, result) => {
     if (err) {
-      res.status(500).json({ error: 'An error occurred while updating the employee role.' });
-    } else if (result.affectedRows === 0) {
-      res.status(404).json({ error: 'Employee not found.' });
+      res.status(500).json({ error: 'An error occurred while adding the employee.' });
     } else {
-      res.json({ message: 'Employee role updated successfully.' });
+      res.json({ message: 'Employee added successfully.', employeeId: result.insertId });
     }
   });
 };
