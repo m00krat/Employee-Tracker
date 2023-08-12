@@ -55,15 +55,91 @@ const viewEmployees = (req, res) => {
 };
 
 const addDepartment = async (req, res) => {
-  
+  const { name } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Enter the name of the department:',
+    },
+  ]);
+
+  if (!name) {
+    return res.status(400).json({ error: 'Department name is required.' });
+  }
+
+  const sql = 'INSERT INTO departments (name) VALUES (?)';
+
+  db.query(sql, [name], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: 'An error occurred while adding the department.' });
+    } else {
+      res.json({ message: 'Department added successfully.', departmentId: result.insertId });
+    }
+  });
 };
 
 const addEmployee = async (req, res) => {
-  
+  const { employeeId, roleId } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'employeeId',
+      message: 'Enter the ID of the employee you want to update:',
+    },
+    {
+      type: 'input',
+      name: 'roleId',
+      message: 'Enter the new role ID for the employee:',
+    },
+  ]);
+
+  if (!employeeId || !roleId) {
+    return res.status(400).json({ error: 'Both employee ID and role ID are required.' });
+  }
+
+  const sql = 'UPDATE employees SET role_id = ? WHERE id = ?';
+  db.query(sql, [roleId, employeeId], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: 'An error occurred while updating the employee role.' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Employee not found.' });
+    } else {
+      res.json({ message: 'Employee role updated successfully.' });
+    }
+  });
 };
 
 const addRole = async (req, res) => {
-  
+  const { title, salary, departmentId } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'title',
+      message: 'Enter the title of the role:',
+    },
+    {
+      type: 'input',
+      name: 'salary',
+      message: 'Enter the salary for the role:',
+    },
+    {
+      type: 'input',
+      name: 'departmentId',
+      message: 'Enter the department ID for the role:',
+    },
+  ]);
+
+  if (!title || !salary || !departmentId) {
+    return res.status(400).json({ error: 'Role title, salary, and department ID are required.' });
+  }
+
+  const sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
+
+  db.query(sql, [title, salary, departmentId], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: 'An error occurred while adding the role.' });
+    } else {
+      res.json({ message: 'Role added successfully.', roleId: result.insertId });
+    }
+  });
 };
 
 const updateEmployeeRole = async (req, res) => {
